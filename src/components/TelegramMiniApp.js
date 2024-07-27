@@ -1,25 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import Web3 from 'web3';
+import React, { useState } from 'react';
+import detectEthereumProvider from '@metamask/detect-provider';
 import axios from 'axios';
 
 const TelegramMiniApp = () => {
   const [walletAddress, setWalletAddress] = useState('');
   const [botMessage, setBotMessage] = useState('');
 
-  useEffect(() => {
-    const initWeb3 = async () => {
-      if (window.ethereum) {
-        window.web3 = new Web3(window.ethereum);
-        await window.ethereum.enable();
-      }
-    };
-    initWeb3();
-  }, []);
-
   const connectWallet = async () => {
-    if (window.ethereum) {
+    const provider = await detectEthereumProvider();
+
+    if (provider) {
       try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        await provider.request({ method: 'eth_requestAccounts' });
+        const accounts = await provider.request({ method: 'eth_accounts' });
         setWalletAddress(accounts[0]);
       } catch (error) {
         console.error('Error connecting to MetaMask:', error);
